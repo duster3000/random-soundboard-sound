@@ -39,7 +39,6 @@
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-
         .content h1 {
             color: #333;
         }                   
@@ -56,22 +55,9 @@
         #main-instant {
             display: flex;
             justify-content: center;
-            align-items: center;
+            /*align-items: center;*/
         }
-        #main-instant iframe {
-            width: 120px;
-            height: 110px;
-            border: none;
-        }
-        #main-instant iframe a {
-           display: none;
-            text-decoration: none;
-        }
-        #main-instant iframe:hover a {
-            display: none;
-            text-decoration: none;
-        }
-        button {
+        .content button {
             background-color: #007BFF;
             color: white;
             border: none;
@@ -80,10 +66,27 @@
             padding: 10px 20px;
             border-radius: 5px;
             cursor: pointer;
+            justify-content: center;
+            align-items: center;
+        }
+        .content button:hover {
+            background-color: #0f6ba8;
+        }
+        #main-instant button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            height: 100px;
+            cursor: pointer;
+            background-color: #ff0000;
+        }
+        #main-instant button:hover {
+            background-color: #c60000;
+        }
+        #main-instant audio {
+            display: none;
         }
         </style>
-        
-
 </head>
 <body>
     <header>
@@ -94,9 +97,10 @@
             <h1>Click the button!</h1>
             <p>It will play a random sound from  <a href='https://www.myinstants.com/'>MyInstants</a>.</p>
             <div id="main-instant">
-                <iframe frameborder="0" scrolling="no"></iframe>
+                <button onclick="document.getElementById('mySound').play();">Play Random Sound</button>
+                <audio id="mySound" src=""></audio>
             </div>
-            <button onclick="playRandomSound()">Change Random Sound</button>
+            <button onclick="changeRandomSound()">Change Random Sound</button>
 
         </div>
     </main>
@@ -195,16 +199,39 @@
             "https://www.myinstants.com/nl/instant/scream-meme-11955/",
             "https://www.myinstants.com/nl/instant/sexy-sax/"
         ];
-        function getRandomSound() {
-            const randomIndex = Math.floor(Math.random() * soundlinks.length);
-            return soundlinks[randomIndex];
-        }
-        function playRandomSound() {
-            const soundFrame = document.getElementById('main-instant').querySelector('iframe');
-            soundFrame.src = getRandomSound().replace('/nl/instant/', '/instant/') + "embed/";
 
+        const container = document.getElementById("main-instant");
+
+        async function getRandomSound() {
+            const randomIndex = Math.floor(Math.random() * soundlinks.length);
+            const url = soundlinks[randomIndex];
+            const response = await fetch("https://corsproxy.io/?" + encodeURIComponent(url));
+            const html = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, "text/html");
+            const button = doc.querySelector("#instant-page-button-element");
+            
+            if (!button) {
+                console.warn("No button on page:", url);
+                return null;
+            }
+
+            const mp3Link = "https://www.myinstants.com" + button.getAttribute("data-url");
+            console.log("MP3:", mp3Link);
+            return mp3Link;
+        }   
+
+        async function changeRandomSound() {
+            const soundFrame = container.querySelector('audio');
+            mp3Link = await getRandomSound();
+            if (mp3Link) {
+                soundFrame.src = mp3Link;
+            } else {
+                console.warn("No valid mp3 link found.");
+            }
         }
-        playRandomSound();
+
+        changeRandomSound();
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Document is ready!');
         });

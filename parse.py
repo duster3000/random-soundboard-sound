@@ -11,4 +11,4 @@ def get_html(url):
             print(anchor.get("href", "/"))
 
             
-get_html("https://www.myinstants.com/nl/")
+get_html("https://www.myinstants.com/nl/index/be/")
