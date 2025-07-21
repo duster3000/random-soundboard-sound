@@ -97,7 +97,7 @@
             <h1>Click the button!</h1>
             <p>It will play a random sound from  <a href='https://www.myinstants.com/'>MyInstants</a>.</p>
             <div id="main-instant">
-                <button title="Play Random Sound" onclick="document.getElementById('mySound').play();">Play Random Sound</button>
+                <button title="Play Random Sound" onclick="playSound()">Play Random Sound</button>
                 <audio id="mySound" src=""></audio>
             </div>
             <button onclick="changeRandomSound()">Change Random Sound</button>
@@ -195,6 +195,21 @@
             } else {
                 console.warn("No valid mp3 link found.");
             }
+        }
+        
+        async function playSound() {
+            const soundFrame = document.getElementById('mySound');
+            if (!soundFrame.src) {
+                await changeRandomSound();
+            }
+            // if the sound is still playing, stop it
+            if (!soundFrame.paused) {
+                soundFrame.pause();
+                soundFrame.currentTime = 0; // reset to start
+            }   
+            soundFrame.play().catch(error => {
+                console.error("Error playing sound:", error);
+            });
         }
 
         changeRandomSound();
