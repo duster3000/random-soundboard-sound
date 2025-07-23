@@ -101,6 +101,9 @@
                 <audio id="mySound" src=""></audio>
             </div>
             <button onclick="changeRandomSound()">Change Random Sound</button>
+            <button onclick="scrapeAndAddSoundsFromURL()">Scrape and Add Sounds</button>
+            <button onclick="saveSounds(soundLinksSet)">Save Sounds</button>
+            <button onclick="clearSounds()"> clear sounds</button>
 
         </div>
     </main>
@@ -108,7 +111,7 @@
         <p>&copy; 2025 ThorstProductions</p>
     </footer>
     <script>
-        const soundlinks = [
+        const soundLinks = [
             "https://www.myinstants.com/nl/instant/999-social-credit-siren-82729/", "https://www.myinstants.com/nl/instant/snore-mimimimimimi-76562/",
             "https://www.myinstants.com/nl/instant/a-few-moments-later-sponge-bob-sfx-fun-80331/", "https://www.myinstants.com/nl/instant/ali-a-intro-18497/",
             "https://www.myinstants.com/nl/instant/among-us-role-reveal-sound-34956/", "https://www.myinstants.com/nl/instant/anime-ahh-73606/",
@@ -165,26 +168,82 @@
             "https://www.myinstants.com/nl/instant/you-are-an-idiot-42738/", "https://www.myinstants.com/nl/instant/you-fucked-up-uncle-roger-75377/",
             "https://www.myinstants.com/nl/instant/youtube-uwuuuuu-67534/", "https://www.myinstants.com/nl/instant/gordon-you-donkey-90239/"
         ];
-
+        let soundLinksSet = new Set(soundLinks);
         const container = document.getElementById("main-instant");
 
+        function clearSounds() {
+            localStorage.removeItem('myinstants-sounds');
+            soundLinksSet.clear();
+            console.log("✅Cleared all sounds from localStorage");
+        }
+        function getStoredSounds() {
+        const stored = localStorage.getItem('myinstants-sounds');
+        return stored ? new Set(JSON.parse(stored)) : new Set(soundLinks);
+        }
+
+        function saveSounds(sounds) {
+            if (sounds == getStoredSounds()) {
+                console.log("✅No new sounds to save");
+                return;
+            }
+            else{
+                localStorage.setItem('myinstants-sounds', JSON.stringify(Array.from(sounds)));
+                console.log(`✅Saved ${sounds.size} sounds to localStorage`);
+                soundLinksSet = sounds;
+            }
+        }
+        
+        async function scrapeAndAddSoundsFromURL(url="https://www.myinstants.com/nl/index/be/") 
+        {
+            try{
+                const response = await fetch("https://corsproxy.io/?" + encodeURIComponent(url));
+                const html = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, "text/html");
+                const links = Array.from(doc.querySelectorAll('div.instant a')).map(a => (a.href).replace("file:///D:/", "https://www.myinstants.com/"));
+
+                const current = getStoredSounds();
+                const originalSize = current.size;
+
+                links.forEach(link => current.add(link));
+                saveSounds(current);
+
+                const added = current.size - originalSize;
+                console.log(`✅Added ${added} new sounds from ${url}`);
+            } catch (error) {
+                console.error("Error scraping sounds:", error);}
+        }
+
         async function getRandomSound() {
-            const randomIndex = Math.floor(Math.random() * soundlinks.length);
-            const url = soundlinks[randomIndex];
-            const response = await fetch("https://corsproxy.io/?" + encodeURIComponent(url));
-            const html = await response.text();
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, "text/html");
-            const button = doc.querySelector("#instant-page-button-element");
-            
-            if (!button) {
-                console.warn("No button on page:", url);
+            try 
+            {   
+                let soundLinksArray = Array.from(soundLinksSet);
+                if (soundLinksArray.length === 0) {
+                    console.warn("No sounds available.");
+                    return null;
+                }
+                
+                const randomIndex = Math.floor(Math.random() * soundLinksArray.length);
+                const url = soundLinksArray[randomIndex];
+                const response = await fetch("https://corsproxy.io/?" + encodeURIComponent(url));
+                const html = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, "text/html");
+                const button = doc.querySelector("#instant-page-button-element");
+                
+                if (!button) {
+                    console.warn("No button on page:", url);
+                    getRandomSound();
+                }
+
+                const mp3Link = "https://www.myinstants.com" + button.getAttribute("data-url");
+                
+                return mp3Link;
+            } catch (error) 
+            {
+                console.error("Error fetching random sound:", error);
                 return null;
             }
-
-            const mp3Link = "https://www.myinstants.com" + button.getAttribute("data-url");
-            console.log("MP3:", mp3Link);
-            return mp3Link;
         }   
 
         async function changeRandomSound() {
@@ -198,20 +257,26 @@
         }
         
         async function playSound() {
-            const soundFrame = document.getElementById('mySound');
-            if (!soundFrame.src) {
-                await changeRandomSound();
-            }
-            // if the sound is still playing, stop it
-            if (!soundFrame.paused) {
-                soundFrame.pause();
-                soundFrame.currentTime = 0; // reset to start
-            }   
-            soundFrame.play().catch(error => {
-                console.error("Error playing sound:", error);
-            });
+            try{
+                const soundFrame = document.getElementById('mySound');
+                if (!soundFrame.src) {
+                    await changeRandomSound();
+                }
+                // if the sound is still playing, stop it
+                if (!soundFrame.paused) {
+                    soundFrame.pause();
+                    soundFrame.currentTime = 0; // reset to start
+                }
+                console.log("Now playing: ", soundFrame.src);   
+                soundFrame.play().catch(error => {
+                    console.error("Error playing sound:", error);
+                });
+                } catch (error) {
+                console.error("Error in playSound function:", error);
+                }
         }
-
+        saveSounds(soundLinksSet);
+        scrapeAndAddSoundsFromURL();
         changeRandomSound();
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Document is ready!');
