@@ -86,6 +86,26 @@
         #main-instant audio {
             display: none;
         }
+
+        .sound-stats-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .sound-stats-row p {
+            margin: 0;
+            flex: 1 1 250px;
+        }
+
+        /* Optioneel: extra media query voor nog smaller scherm */
+        @media (max-width: 500px) {
+            .sound-stats-row {
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
 <body>
@@ -107,13 +127,15 @@
         </div>
         <div id="stat_info" class="content">
             <h2>Sound Statistics</h2>
-            <div id="session-sounds">
-                <p>Total sounds in session: <span id="session-sound-count"> </span></p>
-                <button onclick="clearSoundsFromSession()"> clear sounds from session</button>
-            </div>
-            <div id="storage-sounds">
-                <p>Total sounds in storage: <span id="storage-sound-count"> </span></p>
-                <button onclick="clearSoundsFromStorage()">Clear sounds from storage</button>
+            <div class="sound-stats-row">
+                <div id="session-sounds">
+                    <p>Total sounds in session: <span id="session-sound-count"> </span></p>
+                    <button title="Clear sounds from session" onclick="clearSoundsFromSession()">Clear</button>
+                </div>
+                <div id="storage-sounds">
+                    <p>Total sounds in storage: <span id="storage-sound-count"> </span></p>
+                    <button title="Clear sounds from storage" onclick="clearSoundsFromStorage()">Clear</button>
+                </div>
             </div>
     </main>
     <footer>
@@ -204,10 +226,12 @@
         function loadFromStorage() {
             const storedSounds = getStoredSounds();
             if (storedSounds.size > 0) {
-                soundLinksSet = new Set([...soundLinksSet, ...storedSounds]);
+                soundLinksSet = new Set([...soundLinksSet, ...storedSounds]); // Merge session set with stored sounds
                 console.log(`✅Loaded ${storedSounds.size} sounds from localStorage`);
+                return true;
             } else {
                 console.log("No sounds found in localStorage.");
+                return false; 
             }
             updateStats();
         }
@@ -218,7 +242,7 @@
                 return;
             }
             else {
-                localStorage.setItem('myinstants-sounds', JSON.stringify(Array.from(sounds)));
+                localStorage.setItem('myinstants-sounds', JSON.stringify(Array.from(new Set([...sounds, ...getStoredSounds()]))));
                 console.log(`✅Saved ${sounds.size} sounds to localStorage`);
                 updateStats();
                 //soundLinksSet = sounds;
@@ -227,6 +251,7 @@
         
         async function scrapeAndAddSoundsFromURL(url="https://www.myinstants.com/nl/index/be/") 
         {
+            const urlPrefix = "https://www.myinstants.com/nl/index/";
             try{
                 const response = await fetch("https://corsproxy.io/?" + encodeURIComponent(url));
                 const html = await response.text();
@@ -254,7 +279,10 @@
             {   
                 if (soundLinksSet.size === 0) {
                     console.warn("No sounds available. Loading from storage...");
-                    loadFromStorage();
+                    if (loadFromStorage() == false) {
+                        console.warn("No sounds found in storage either. Scraping default sounds...");
+                        soundLinksSet = new Set(soundLinks);
+                    }
                     
                 }
                 let soundLinksArray = Array.from(soundLinksSet);
@@ -296,6 +324,7 @@
             const mp3Link = await getRandomSound();
             if (mp3Link) {
                 soundFrame.src = mp3Link;
+                console.log("Random sound changed.")
             } else {
                 console.warn("No valid mp3 link found.");
             }
