@@ -225,15 +225,17 @@
 
         function loadFromStorage() {
             const storedSounds = getStoredSounds();
-            if (storedSounds.size > 0) {
-                soundLinksSet = new Set([...soundLinksSet, ...storedSounds]); // Merge session set with stored sounds
-                console.log(`✅Loaded ${storedSounds.size} sounds from localStorage`);
-                return true;
-            } else {
+            if (storedSounds.size == 0) {
                 console.log("No sounds found in localStorage.");
                 return false; 
+                
+            } else {
+                soundLinksSet = new Set([...soundLinksSet, ...storedSounds]); // Merge session set with stored sounds
+                console.log(`✅Loaded ${storedSounds.size} sounds from localStorage`);
+                updateStats();
+                return true;
             }
-            updateStats();
+           
         }
 
         function saveSoundsToStorage(sounds) {
