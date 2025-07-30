@@ -99,6 +99,20 @@
             margin: 0;
             flex: 1 1 250px;
         }
+        .github-link {
+            text-align: center;
+            margin-top: 11rem;
+            font-size: 1rem;
+        }
+
+        .github-link a {
+            color: #0366d6; /* optioneel: GitHub-blauw */
+            text-decoration: none;
+        }
+
+        .github-link a:hover {
+            text-decoration: underline;
+        }
 
         /* Optioneel: extra media query voor nog smaller scherm */
         @media (max-width: 500px) {
@@ -115,7 +129,7 @@
     <main>
         <div class="content">
             <h1>Click the button!</h1>
-            <p>It will play a random sound from  <a href='https://www.myinstants.com/'>MyInstants</a>.</p>
+            <p>It will play a random sound from  <a href='https://www.myinstants.com/' target="_blank">MyInstants</a>.</p>
             <div id="main-instant">
                 <button title="Play Random Sound" onclick="playSound()">Play Random Sound</button>
                 <audio id="mySound" src=""></audio>
@@ -137,9 +151,14 @@
                     <button title="Clear sounds from storage" onclick="clearSoundsFromStorage()">Clear</button>
                 </div>
             </div>
+        </div>
+        <div class="github-link">
+            <a target="_blank" href="https://github.com/duster3000/random-soundboard-sound">GitHub repo</a>
+        </div>
     </main>
     <footer>
         <p>&copy; 2025 ThorstProductions</p>
+        
     </footer>
     <script>
         const soundLinks = [
@@ -230,7 +249,7 @@
                 return false; 
                 
             } else {
-                soundLinksSet = new Set([...soundLinksSet, ...storedSounds]); // Merge session set with stored sounds
+                soundLinksSet = new Set([...soundLinksSet, ...storedSounds]); // Merge global session set with stored sounds
                 console.log(`✅Loaded ${storedSounds.size} sounds from localStorage`);
                 updateStats();
                 return true;
@@ -353,8 +372,9 @@
         }
 
         //saveSoundsToStorage(soundLinksSet);
-        updateStats()
+        updateStats();
         scrapeAndAddSoundsFromURL();
+        loadFromStorage(); //Import and merge stored sounds with session set
         changeRandomSound();
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Document is ready!');
