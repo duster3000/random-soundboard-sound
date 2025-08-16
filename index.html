@@ -135,9 +135,23 @@
                 <audio id="mySound" src=""></audio>
             </div>
             <button onclick="changeRandomSound()">Change Random Sound</button>
-            <button title="Scrape sounds from the webpage and add them to the set" onclick="scrapeAndAddSoundsFromURL()">Scrape and Add Sounds</button>
+            
+            
             <button title="Save sounds to local storage" onclick="saveSoundsToStorage(soundLinksSet)">Save Sounds</button>
             <button onclick="loadFromStorage()">Load Sounds from Storage</button>
+        </div>
+        <div id="scrape-div" class="content">
+            <h2>Scrape Sounds from MyInstants</h2>
+            <p>Select a country to scrape sounds from:</p>
+            <label for="countries">Choose a country:</label>
+            <select name="countries" id="countries" onchange="scrapeAndAddSoundsFromURL('https://www.myinstants.com/en/index/' + this.value + '/')">
+            <option value="BE">Belgium</option>
+            <option value="NL">Netherlands</option>
+            <option value="FR">France</option>
+            <option value="GB">United Kingdom</option>
+            <option value="DE">Germany</option>
+            <option value="US">United States</option>
+            </select>
         </div>
         <div id="stat_info" class="content">
             <h2>Sound Statistics</h2>
@@ -270,27 +284,37 @@
             }
         }
         
-        async function scrapeAndAddSoundsFromURL(url="https://www.myinstants.com/nl/index/be/") 
+        async function scrapeAndAddSoundsFromURL(url="https://www.myinstants.com/nl/index/be/", maxPages=5) 
         {
-            const urlPrefix = "https://www.myinstants.com/nl/index/";
+           // const urlPrefix = "https://www.myinstants.com/en/index/";
+
             try{
-                const response = await fetch("https://corsproxy.io/?" + encodeURIComponent(url));
-                const html = await response.text();
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, "text/html");
-                const links = Array.from(doc.querySelectorAll('div.instant a')).map(a => "https://www.myinstants.com" + a.getAttribute('href'));
-                console.log(links);
-                if (links.length === 0) {
-                    console.warn("No sound links found on the page.");
+                const originalSize = soundLinksSet.size;
+                for (let page = 1; page <= maxPages; page++) {
+                    const pageUrl = url + "?page=" + page;
+                    console.log(`Scraping sounds from: ${pageUrl}`);
+                
+                    const response = await fetch("https://corsproxy.io/?" + encodeURIComponent(url));
+                    const html = await response.text();
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, "text/html");
+                    const links = Array.from(doc.querySelectorAll('div.instant a')).map(a => "https://www.myinstants.com" + a.getAttribute('href'));
+                    console.log(links);
+                    if (links.length === 0) {
+                        console.warn("No sound links found on the page.");
+                        return;
+                    }
+                    links.forEach(link => soundLinksSet.add(link));
+                }
+                const added = soundLinksSet.size - originalSize;
+                if (added === 0) {
+                    console.log("✅No new sounds found to add.");
                     return;
                 }
-                const originalSize = soundLinksSet.size;
-
-                links.forEach(link => soundLinksSet.add(link));
-                //saveSoundsToStorage(current);
-                const added = soundLinksSet.size - originalSize;
-                console.log(`✅Added ${added} new sounds from ${url} to session set.`);
+                else {
+                    console.log(`✅Added ${added} new sounds from ${url} to session set.`);
                 updateStats();
+            }
             } catch (error) {
                 console.error("Error scraping sounds:", error);}
         }
@@ -373,7 +397,7 @@
 
         //saveSoundsToStorage(soundLinksSet);
         updateStats();
-        scrapeAndAddSoundsFromURL();
+        //scrapeAndAddSoundsFromURL();
         loadFromStorage(); //Import and merge stored sounds with session set
         changeRandomSound();
         document.addEventListener('DOMContentLoaded', function() {
