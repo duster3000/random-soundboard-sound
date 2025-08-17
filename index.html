@@ -133,18 +133,19 @@
             <div id="main-instant">
                 <button title="Play Random Sound" onclick="playSound()">Play Random Sound</button>
                 <audio id="mySound" src=""></audio>
+                
             </div>
+            <div id="delete"><button title="Delete current sound from session" onclick="deleteSoundFromSession()">Clear Current Sound</button></div>
+            
             <button onclick="changeRandomSound()">Change Random Sound</button>
-            
-            
             <button title="Save sounds to local storage" onclick="saveSoundsToStorage(soundLinksSet)">Save Sounds</button>
             <button onclick="loadFromStorage()">Load Sounds from Storage</button>
         </div>
         <div id="scrape-div" class="content">
             <h2>Scrape Sounds from MyInstants</h2>
             <p>Select a country to scrape sounds from:</p>
-            <label for="countries">Choose a country:</label>
             <select name="countries" id="countries" onchange="scrapeAndAddSoundsFromURL('https://www.myinstants.com/en/index/' + this.value + '/')">
+            <option selected="selected">--Choose a country--</option>
             <option value="BE">Belgium</option>
             <option value="NL">Netherlands</option>
             <option value="FR">France</option>
@@ -259,7 +260,7 @@
         function loadFromStorage() {
             const storedSounds = getStoredSounds();
             if (storedSounds.size == 0) {
-                console.log("No sounds found in localStorage.");
+                console.log("🟡No sounds found in localStorage.");
                 return false; 
                 
             } else {
@@ -273,7 +274,7 @@
 
         function saveSoundsToStorage(sounds) {
             if (sounds == getStoredSounds()) {
-                console.log("✅No new sounds to save");
+                console.log("🟡No new sounds to save");
                 return;
             }
             else {
@@ -284,6 +285,19 @@
             }
         }
         
+        function deleteSoundFromSession(){
+            const soundFrame = container.querySelector('audio');
+            if (soundFrame.src) {
+                soundLinksSet.delete(soundFrame.src);
+                soundFrame.src = ""; // Clear the audio source
+                console.log("✅Deleted current sound from session.");
+                updateStats();
+                changeRandomSound(); // Change to a new random sound
+            } else {
+                console.warn("No sound is currently playing to delete.");
+            }
+        }
+
         async function scrapeAndAddSoundsFromURL(url="https://www.myinstants.com/nl/index/be/", maxPages=5) 
         {
            // const urlPrefix = "https://www.myinstants.com/en/index/";
@@ -301,14 +315,14 @@
                     const links = Array.from(doc.querySelectorAll('div.instant a')).map(a => "https://www.myinstants.com" + a.getAttribute('href'));
                     console.log(links);
                     if (links.length === 0) {
-                        console.warn("No sound links found on the page.");
+                        console.warn("🟡No sound links found on the page.");
                         return;
                     }
                     links.forEach(link => soundLinksSet.add(link));
                 }
                 const added = soundLinksSet.size - originalSize;
                 if (added === 0) {
-                    console.log("✅No new sounds found to add.");
+                    console.log("🟡No new sounds found to add.");
                     return;
                 }
                 else {
@@ -325,7 +339,7 @@
                 if (soundLinksSet.size === 0) {
                     console.warn("No sounds available. Loading from storage...");
                     if (loadFromStorage() == false) {
-                        console.warn("No sounds found in storage either. Scraping default sounds...");
+                        console.warn("🟡No sounds found in storage either. Scraping default sounds...");
                         soundLinksSet = new Set(soundLinks);
                     }
                     
@@ -395,13 +409,14 @@
                 }
         }
 
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Document is ready!');
+        });
         //saveSoundsToStorage(soundLinksSet);
         updateStats();
         //scrapeAndAddSoundsFromURL();
         loadFromStorage(); //Import and merge stored sounds with session set
         changeRandomSound();
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('Document is ready!');
-        });
+        
     </script>
 </html>
