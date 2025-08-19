@@ -339,7 +339,7 @@
                 if (soundLinksSet.size === 0) {
                     console.warn("No sounds available. Loading from storage...");
                     if (loadFromStorage() == false) {
-                        console.warn("🟡No sounds found in storage either. Scraping default sounds...");
+                        console.warn("🟡No sounds found in storage either. Using default sounds...");
                         soundLinksSet = new Set(soundLinks);
                     }
                     
@@ -361,6 +361,13 @@
                         
                         if (!button) {
                             console.warn(`No button found on page (${attemptCount}/${maxAttempts}):`, url);
+                            soundLinksArray.splice(randomIndex, 1); // Remove the link if no button found
+                            soundLinksSet.delete(url)
+                            if (soundLinksArray.length === 0) {
+                                console.warn("No valid sound links left to try.");
+                                return null;
+                            }
+                        
                         }
                         else {
                             const mp3Link = "https://www.myinstants.com" + button.getAttribute("data-url");
