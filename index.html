@@ -136,7 +136,9 @@
                 
             </div>
             <div id="delete"><button title="Delete current sound from session" onclick="deleteSoundFromSession()">Clear Current Sound</button></div>
-            
+            <div id="download">
+                <a id="download-link" href="sound.mp3" download>Download Sound</a>
+            </div>
             <button onclick="changeRandomSound()">Change Random Sound</button>
             <button title="Save sounds to local storage" onclick="saveSoundsToStorage(soundLinksSet)">Save Sounds</button>
             <button onclick="loadFromStorage()">Load Sounds from Storage</button>
@@ -176,6 +178,8 @@
         
     </footer>
     <script>
+       
+
         const soundLinks = [
             "https://www.myinstants.com/nl/instant/999-social-credit-siren-82729/", "https://www.myinstants.com/nl/instant/snore-mimimimimimi-76562/",
             "https://www.myinstants.com/nl/instant/a-few-moments-later-sponge-bob-sfx-fun-80331/", "https://www.myinstants.com/nl/instant/ali-a-intro-18497/",
@@ -278,8 +282,9 @@
                 return;
             }
             else {
-                localStorage.setItem('myinstants-sounds', JSON.stringify(Array.from(new Set([...sounds, ...getStoredSounds()]))));
-                console.log(`✅Saved ${sounds.size} sounds to localStorage`);
+                storedSounds = getStoredSounds();
+                localStorage.setItem('myinstants-sounds', JSON.stringify(Array.from(new Set([...sounds, ...storedSounds]))));
+                console.log(`✅Saved ${sounds.size - storedSounds.size} new sounds to localStorage`);
                 updateStats();
                 //soundLinksSet = sounds;
             }
@@ -289,6 +294,9 @@
             const soundFrame = container.querySelector('audio');
             if (soundFrame.src) {
                 soundLinksSet.delete(soundFrame.src);
+                newStoredSounds = getStoredSounds()
+                newStoredSounds.delete(soundFrame.src);
+                localStorage.setItem('myinstants-sounds', JSON.stringify(Array.from(newStoredSounds)));
                 soundFrame.src = ""; // Clear the audio source
                 console.log("✅Deleted current sound from session.");
                 updateStats();
@@ -341,8 +349,7 @@
                     if (loadFromStorage() == false) {
                         console.warn("🟡No sounds found in storage either. Using default sounds...");
                         soundLinksSet = new Set(soundLinks);
-                    }
-                    
+                    }  
                 }
                 let soundLinksArray = Array.from(soundLinksSet);
                 let button = null;
@@ -363,6 +370,7 @@
                             console.warn(`No button found on page (${attemptCount}/${maxAttempts}):`, url);
                             soundLinksArray.splice(randomIndex, 1); // Remove the link if no button found
                             soundLinksSet.delete(url)
+                            updateStats();
                             if (soundLinksArray.length === 0) {
                                 console.warn("No valid sound links left to try.");
                                 return null;
@@ -390,6 +398,7 @@
             const mp3Link = await getRandomSound();
             if (mp3Link) {
                 soundFrame.src = mp3Link;
+                document.getElementById("download-link").href = mp3Link;
                 console.log("Random sound changed.")
             } else {
                 console.warn("No valid mp3 link found.");
@@ -419,11 +428,13 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Document is ready!');
         });
+        
         //saveSoundsToStorage(soundLinksSet);
         updateStats();
         //scrapeAndAddSoundsFromURL();
         loadFromStorage(); //Import and merge stored sounds with session set
         changeRandomSound();
+        //document.getElementById("download-link").href = document.getElementById("mySound").src;
         
     </script>
 </html>
