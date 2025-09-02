@@ -135,13 +135,15 @@
                 <audio id="mySound" src=""></audio>
                 
             </div>
-            <div id="delete"><button title="Delete current sound from session" onclick="deleteSoundFromSession()">Clear Current Sound</button></div>
-            <div id="download">
-                <a id="download-link" href="sound.mp3" download>Download Sound</a>
+
+            <div id="delete">
+                <button title="Delete current sound from session" onclick="deleteSoundFromSession()">Clear Current Sound</button>
+                <button title="Download current sound" onclick="downloadSound()" id="download-button">Download Sound</button>
             </div>
-            <button onclick="changeRandomSound()">Change Random Sound</button>
+    
+            <button title="Change random sound" onclick="changeRandomSound()">Change Random Sound</button>
             <button title="Save sounds to local storage" onclick="saveSoundsToStorage(soundLinksSet)">Save Sounds</button>
-            <button onclick="loadFromStorage()">Load Sounds from Storage</button>
+            <button title="Load sounds from localStorage" onclick="loadFromStorage()">Load Sounds from Storage</button>
         </div>
         <div id="scrape-div" class="content">
             <h2>Scrape Sounds from MyInstants</h2>
@@ -398,7 +400,6 @@
             const mp3Link = await getRandomSound();
             if (mp3Link) {
                 soundFrame.src = mp3Link;
-                document.getElementById("download-link").href = mp3Link;
                 console.log("Random sound changed.")
             } else {
                 console.warn("No valid mp3 link found.");
@@ -424,6 +425,25 @@
                 console.error("Error in playSound function:", error);
                 }
         }
+        async function downloadSound() {
+            const soundFrame = document.getElementById('mySound');
+            const url = soundFrame.src;
+            if (!url) {
+                console.warn("No sound is currently loaded to download.");
+                return;
+            }
+
+            const filename = url.split('/').pop();
+            const response = await fetch("https://corsproxy.io/?" + encodeURIComponent(url));
+            const blob = await response.blob();
+            
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(a.href); // cleanup
+            console.log("✅Sound downloaded:", url);
+        }
 
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Document is ready!');
@@ -434,7 +454,6 @@
         //scrapeAndAddSoundsFromURL();
         loadFromStorage(); //Import and merge stored sounds with session set
         changeRandomSound();
-        //document.getElementById("download-link").href = document.getElementById("mySound").src;
         
     </script>
 </html>
