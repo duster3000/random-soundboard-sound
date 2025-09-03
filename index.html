@@ -136,7 +136,7 @@
                 
             </div>
 
-            <div id="delete">
+            <div id="side-btns" style="margin-top: 20px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
                 <button title="Delete current sound from session" onclick="deleteSoundFromSession()">Clear Current Sound</button>
                 <button title="Download current sound" onclick="downloadSound()" id="download-button">Download Sound</button>
             </div>
@@ -180,8 +180,7 @@
         
     </footer>
     <script>
-       
-
+    
         const soundLinks = [
             "https://www.myinstants.com/nl/instant/999-social-credit-siren-82729/", "https://www.myinstants.com/nl/instant/snore-mimimimimimi-76562/",
             "https://www.myinstants.com/nl/instant/a-few-moments-later-sponge-bob-sfx-fun-80331/", "https://www.myinstants.com/nl/instant/ali-a-intro-18497/",
@@ -242,29 +241,29 @@
         let soundLinksSet = new Set(soundLinks);
         const container = document.getElementById("main-instant");
 
-        function updateStats() {
+        async function updateStats() {
             document.getElementById("session-sound-count").textContent = soundLinksSet.size;
-            document.getElementById("storage-sound-count").textContent = getStoredSounds().size;
+            document.getElementById("storage-sound-count").textContent = (await getStoredSounds()).size;
         }
 
-        function clearSoundsFromStorage() {
+        async function clearSoundsFromStorage() {
             localStorage.removeItem('myinstants-sounds');
             console.log("✅Cleared all sounds from localStorage");
-            updateStats()
+            await updateStats()
         }
-        function clearSoundsFromSession() {
+        async function clearSoundsFromSession() {
             soundLinksSet.clear();
             console.log("✅Cleared all sounds from the current session");
-            updateStats()
+           await updateStats()
         }
 
-        function getStoredSounds() {
+        async function getStoredSounds() {
             const stored = localStorage.getItem('myinstants-sounds');
             return stored ? new Set(JSON.parse(stored)) : new Set();
         }
 
-        function loadFromStorage() {
-            const storedSounds = getStoredSounds();
+        async function loadFromStorage() {
+            const storedSounds = await getStoredSounds();
             if (storedSounds.size == 0) {
                 console.log("🟡No sounds found in localStorage.");
                 return false; 
@@ -272,47 +271,45 @@
             } else {
                 soundLinksSet = new Set([...soundLinksSet, ...storedSounds]); // Merge global session set with stored sounds
                 console.log(`✅Loaded ${storedSounds.size} sounds from localStorage`);
-                updateStats();
+                await updateStats();
                 return true;
             }
            
         }
 
-        function saveSoundsToStorage(sounds) {
-            if (sounds == getStoredSounds()) {
+        async function saveSoundsToStorage(sounds) {
+            const storedSounds = await getStoredSounds();
+            if (sounds == storedSounds) {
                 console.log("🟡No new sounds to save");
                 return;
             }
             else {
-                storedSounds = getStoredSounds();
-                localStorage.setItem('myinstants-sounds', JSON.stringify(Array.from(new Set([...sounds, ...storedSounds]))));
-                console.log(`✅Saved ${sounds.size - storedSounds.size} new sounds to localStorage`);
-                updateStats();
-                //soundLinksSet = sounds;
+                const merged = new Set([...sounds, ...storedSounds]);
+                localStorage.setItem('myinstants-sounds', JSON.stringify(Array.from(merged)));
+                console.log(`✅Saved ${merged.size - storedSounds.size} new sounds to localStorage`);
+                await updateStats();
             }
         }
         
-        function deleteSoundFromSession(){
-            const soundFrame = container.querySelector('audio');
+        async function deleteSoundFromSession(){
+            const soundFrame = document.getElementById("mySound");
             if (soundFrame.src) {
                 soundLinksSet.delete(soundFrame.src);
-                newStoredSounds = getStoredSounds()
+                newStoredSounds = await getStoredSounds()
                 newStoredSounds.delete(soundFrame.src);
                 localStorage.setItem('myinstants-sounds', JSON.stringify(Array.from(newStoredSounds)));
                 soundFrame.src = ""; // Clear the audio source
                 console.log("✅Deleted current sound from session.");
-                updateStats();
-                changeRandomSound(); // Change to a new random sound
+                await updateStats();
+                await changeRandomSound(); // Change to a new random sound
             } else {
                 console.warn("No sound is currently playing to delete.");
             }
         }
-
+ // scraping
         async function scrapeAndAddSoundsFromURL(url="https://www.myinstants.com/nl/index/be/", maxPages=5) 
         {
-           // const urlPrefix = "https://www.myinstants.com/en/index/";
-
-            try{
+            try {
                 const originalSize = soundLinksSet.size;
                 for (let page = 1; page <= maxPages; page++) {
                     const pageUrl = url + "?page=" + page;
@@ -337,7 +334,7 @@
                 }
                 else {
                     console.log(`✅Added ${added} new sounds from ${url} to session set.`);
-                updateStats();
+                await updateStats();
             }
             } catch (error) {
                 console.error("Error scraping sounds:", error);}
@@ -372,7 +369,7 @@
                             console.warn(`No button found on page (${attemptCount}/${maxAttempts}):`, url);
                             soundLinksArray.splice(randomIndex, 1); // Remove the link if no button found
                             soundLinksSet.delete(url)
-                            updateStats();
+                            await updateStats();
                             if (soundLinksArray.length === 0) {
                                 console.warn("No valid sound links left to try.");
                                 return null;
@@ -418,7 +415,7 @@
                     soundFrame.currentTime = 0; // reset to start
                 }
                 console.log("Now playing: ", soundFrame.src);   
-                soundFrame.play().catch(error => {
+                await soundFrame.play().catch(error => {
                     console.error("Error playing sound:", error);
                 });
                 } catch (error) {
@@ -442,18 +439,15 @@
             a.download = filename;
             a.click();
             URL.revokeObjectURL(a.href); // cleanup
-            console.log("✅Sound downloaded:", url);
+            console.log("✅Sound downloaded:", filename);
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('Document is ready!');
-        });
-        
-        //saveSoundsToStorage(soundLinksSet);
-        updateStats();
-        //scrapeAndAddSoundsFromURL();
-        loadFromStorage(); //Import and merge stored sounds with session set
-        changeRandomSound();
-        
+       document.addEventListener("DOMContentLoaded", async () => {
+            console.log("Document is ready!");
+            await updateStats();
+            await loadFromStorage();
+            await changeRandomSound();
+
+       });
     </script>
 </html>
