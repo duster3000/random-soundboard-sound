@@ -1,4 +1,5 @@
 <html>
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,16 +14,19 @@
             padding: 0;
             background-color: #f4f4f4;
         }
+
         header {
             background-color: #333;
             color: white;
             padding: 10px 0;
             text-align: center;
         }
+
         main {
             padding: 20px;
             text-align: center;
         }
+
         footer {
             background-color: #333;
             color: white;
@@ -32,47 +36,56 @@
             width: 100%;
             bottom: 0;
         }
+
         .content {
             background-color: white;
             padding: 10px;
             margin: 10px auto;
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            h1 {
+                color: #333;
+            }
+            p {
+                color: #666;
+            }
+            a {
+                color: #007BFF;
+                text-decoration: none;
+            }
+            a:hover {
+                text-decoration: underline;
+            }
+            button {
+                background-color: #007BFF;
+                color: white;
+                border: none;
+                margin: 5px 0;
+                font-size: 16px;
+                padding: 10px 20px;
+                border-radius: 5px;
+                cursor: pointer;
+                justify-content: center;
+                align-items: center;
+            }
+            button:hover {
+                background-color: #0f6ba8;
+            }
         }
-        .content h1 {
-            color: #333;
-        }                   
-        .content p {
-            color: #666;
-        }
-        .content a {
-            color: #007BFF;
-            text-decoration: none;
-        }
-        .content a:hover {
-            text-decoration: underline;
-        }
+
         #main-instant {
             display: flex;
-            justify-content: center;
-            /*align-items: center;*/
-        }
-        .content button {
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            margin: 5px 0;
-            font-size: 16px;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
+            flex-wrap: wrap;
             justify-content: center;
             align-items: center;
+
+            audio {
+                display: none;
+            }
+
         }
-        .content button:hover {
-            background-color: #0f6ba8;
-        }
-        #main-instant button {
+
+        #main-instant-button {
             margin: 10px;
             padding: 10px 20px;
             font-size: 16px;
@@ -80,11 +93,9 @@
             cursor: pointer;
             background-color: #ff0000;
         }
-        #main-instant button:hover {
+
+        #main-instant-button:hover {
             background-color: #c60000;
-        }
-        #main-instant audio {
-            display: none;
         }
 
         .sound-stats-row {
@@ -99,6 +110,7 @@
             margin: 0;
             flex: 1 1 250px;
         }
+
         .github-link {
             text-align: center;
             margin-top: 11rem;
@@ -106,7 +118,8 @@
         }
 
         .github-link a {
-            color: #0366d6; /* optioneel: GitHub-blauw */
+            color: #0366d6;
+            /* optioneel: GitHub-blauw */
             text-decoration: none;
         }
 
@@ -122,6 +135,7 @@
         }
     </style>
 </head>
+
 <body>
     <header>
         <h1>Random Sound</h1>
@@ -129,33 +143,35 @@
     <main>
         <div class="content">
             <h1>Click the button!</h1>
-            <p>It will play a random sound from  <a href='https://www.myinstants.com/' target="_blank">MyInstants</a>.</p>
+            <p>It will play a random sound from <a href='https://www.myinstants.com/' target="_blank">MyInstants</a>.
+            </p>
             <div id="main-instant">
-                <button title="Play Random Sound" onclick="playSound()">Play Random Sound</button>
+                <button title="Download current sound" onclick="downloadSound()" id="download-button">Download
+                    Sound</button>
+                <button id="main-instant-button" title="Play Random Sound" onclick="playSound()">Play Random
+                    Sound</button>
                 <audio id="mySound" src=""></audio>
-                
+                <button title="Delete current sound from session" onclick="deleteCurrentSound()">Delete Current
+                    Sound</button>
             </div>
 
-            <div id="side-btns" style="margin-top: 20px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
-                <button title="Delete current sound from session" onclick="deleteSoundFromSession()">Clear Current Sound</button>
-                <button title="Download current sound" onclick="downloadSound()" id="download-button">Download Sound</button>
-            </div>
-    
             <button title="Change random sound" onclick="changeRandomSound()">Change Random Sound</button>
-            <button title="Save sounds to local storage" onclick="saveSoundsToStorage(soundLinksSet)">Save Sounds</button>
+            <button title="Save sounds to local storage" onclick="saveSoundsToStorage(soundLinksSet)">Save
+                Sounds</button>
             <button title="Load sounds from localStorage" onclick="loadFromStorage()">Load Sounds from Storage</button>
         </div>
         <div id="scrape-div" class="content">
             <h2>Scrape Sounds from MyInstants</h2>
             <p>Select a country to scrape sounds from:</p>
-            <select name="countries" id="countries" onchange="scrapeAndAddSoundsFromURL('https://www.myinstants.com/en/index/' + this.value + '/')">
-            <option selected="selected">--Choose a country--</option>
-            <option value="BE">Belgium</option>
-            <option value="NL">Netherlands</option>
-            <option value="FR">France</option>
-            <option value="GB">United Kingdom</option>
-            <option value="DE">Germany</option>
-            <option value="US">United States</option>
+            <select name="countries" id="countries"
+                onchange="scrapeAndAddSoundsFromURL('https://www.myinstants.com/en/index/' + this.value + '/')">
+                <option selected="selected">--Choose a country--</option>
+                <option value="BE">Belgium</option>
+                <option value="NL">Netherlands</option>
+                <option value="FR">France</option>
+                <option value="GB">United Kingdom</option>
+                <option value="DE">Germany</option>
+                <option value="US">United States</option>
             </select>
         </div>
         <div id="stat_info" class="content">
@@ -177,15 +193,17 @@
     </main>
     <footer>
         <p>&copy; 2025 ThorstProductions</p>
-        
+
     </footer>
     <script>
-    
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
         const soundLinks = [
             "https://www.myinstants.com/nl/instant/999-social-credit-siren-82729/", "https://www.myinstants.com/nl/instant/snore-mimimimimimi-76562/",
             "https://www.myinstants.com/nl/instant/a-few-moments-later-sponge-bob-sfx-fun-80331/", "https://www.myinstants.com/nl/instant/ali-a-intro-18497/",
             "https://www.myinstants.com/nl/instant/among-us-role-reveal-sound-34956/", "https://www.myinstants.com/nl/instant/anime-ahh-73606/",
-            "https://www.myinstants.com/nl/instant/anime-wow/", "https://www.myinstants.com/nl/instant/asian-meme-huh-49043/", 
+            "https://www.myinstants.com/nl/instant/anime-wow/", "https://www.myinstants.com/nl/instant/asian-meme-huh-49043/",
             "https://www.myinstants.com/nl/instant/awkward-cricket-74642/", "https://www.myinstants.com/nl/instant/bababooey-mp4-73672/",
             "https://www.myinstants.com/nl/instant/bad-to-the-bone-riff-10536/", "https://www.myinstants.com/nl/instant/better-call-saul-intro-6976/",
             "https://www.myinstants.com/nl/instant/biden-soda-52830/", "https://www.myinstants.com/nl/instant/biem-13736/",
@@ -200,7 +218,7 @@
             "https://www.myinstants.com/nl/instant/door-knocking-sound-effect-614/", "https://www.myinstants.com/nl/instant/dramatic-tiktok-63207/",
             "https://www.myinstants.com/nl/instant/dun-dun-dunnnnnnnn-68584/", "https://www.myinstants.com/nl/instant/eagle-sound-25409/",
             "https://www.myinstants.com/nl/instant/erm-what-the-sigma-51754/", "https://www.myinstants.com/nl/instant/error-soundss-25534/",
-            "https://www.myinstants.com/nl/instant/eww-brother-eww-60822/","https://www.myinstants.com/nl/instant/fart-meme-sound-46799/",
+            "https://www.myinstants.com/nl/instant/eww-brother-eww-60822/", "https://www.myinstants.com/nl/instant/fart-meme-sound-46799/",
             "https://www.myinstants.com/nl/instant/fart-with-reverb-17715/", "https://www.myinstants.com/nl/instant/fbi-open-up-with-explosion-491/",
             "https://www.myinstants.com/nl/instant/fnaf-2-hallway-4016/", "https://www.myinstants.com/nl/instant/french-meme-song-55813/",
             "https://www.myinstants.com/nl/instant/goofy-ahh-car-horn-sound-effect-28656/", "https://www.myinstants.com/nl/instant/goofy-ahh-sounds-96639/",
@@ -227,18 +245,18 @@
             "https://www.myinstants.com/nl/instant/sad-meow-song-88771/", "https://www.myinstants.com/nl/instant/sad-trombone/",
             "https://www.myinstants.com/nl/instant/sad-violin-the-meme-one/", "https://www.myinstants.com/nl/instant/scream-meme-11955/",
             "https://www.myinstants.com/nl/instant/sexy-sax/", "https://www.myinstants.com/nl/instant/sponge-stank-noise-17565/",
-            "https://www.myinstants.com/nl/instant/spongebob-fail-11236/", "https://www.myinstants.com/nl/instant/the-epic-sax-guy/", 
-            "https://www.myinstants.com/nl/instant/they-ask-you-how-you-are-meme-/", "https://www.myinstants.com/nl/instant/tuco-get-out-30566/", 
+            "https://www.myinstants.com/nl/instant/spongebob-fail-11236/", "https://www.myinstants.com/nl/instant/the-epic-sax-guy/",
+            "https://www.myinstants.com/nl/instant/they-ask-you-how-you-are-meme-/", "https://www.myinstants.com/nl/instant/tuco-get-out-30566/",
             "https://www.myinstants.com/nl/instant/uncle-roger-fuiyoh-61327/", "https://www.myinstants.com/nl/instant/vine-boom-sound-70972/",
             "https://www.myinstants.com/nl/instant/voorzichtig-op-de-baan-50457/", "https://www.myinstants.com/nl/instant/wait-wait-wait-what-the-hell-legend-sound-65445/",
-            "https://www.myinstants.com/nl/instant/what-da-dog-doin-35890/", "https://www.myinstants.com/nl/instant/what-the-hell-is-even-that-74653/", 
+            "https://www.myinstants.com/nl/instant/what-da-dog-doin-35890/", "https://www.myinstants.com/nl/instant/what-the-hell-is-even-that-74653/",
             "https://www.myinstants.com/nl/instant/what-the-hell-meme-sound-effect-95969/", "https://www.myinstants.com/nl/instant/wheres-the-lamb-sauce-60694/",
             "https://www.myinstants.com/nl/instant/wild-west-sound-60769/", "https://www.myinstants.com/nl/instant/woo-yeah-jamie-oliver-76426/",
-            "https://www.myinstants.com/nl/instant/yamate-kudasai-47380/", "https://www.myinstants.com/nl/instant/yippeeeeeeeeeeeeee-34261/", 
+            "https://www.myinstants.com/nl/instant/yamate-kudasai-47380/", "https://www.myinstants.com/nl/instant/yippeeeeeeeeeeeeee-34261/",
             "https://www.myinstants.com/nl/instant/you-are-an-idiot-42738/", "https://www.myinstants.com/nl/instant/you-fucked-up-uncle-roger-75377/",
             "https://www.myinstants.com/nl/instant/youtube-uwuuuuu-67534/", "https://www.myinstants.com/nl/instant/gordon-you-donkey-90239/"
         ];
-        let soundLinksSet = new Set(soundLinks);
+        let soundLinksSet = new Set();
         const container = document.getElementById("main-instant");
 
         async function updateStats() {
@@ -254,7 +272,7 @@
         async function clearSoundsFromSession() {
             soundLinksSet.clear();
             console.log("✅Cleared all sounds from the current session");
-           await updateStats()
+            await updateStats()
         }
 
         async function getStoredSounds() {
@@ -266,15 +284,15 @@
             const storedSounds = await getStoredSounds();
             if (storedSounds.size == 0) {
                 console.log("🟡No sounds found in localStorage.");
-                return false; 
-                
+                return false;
+
             } else {
                 soundLinksSet = new Set([...soundLinksSet, ...storedSounds]); // Merge global session set with stored sounds
                 console.log(`✅Loaded ${storedSounds.size} sounds from localStorage`);
                 await updateStats();
                 return true;
             }
-           
+
         }
 
         async function saveSoundsToStorage(sounds) {
@@ -290,32 +308,41 @@
                 await updateStats();
             }
         }
-        
-        async function deleteSoundFromSession(){
+
+        async function deleteSound(soundUrl) {
+            soundLinksSet.delete(soundUrl);
+            newStoredSounds = await getStoredSounds()
+            if (newStoredSounds.has(soundUrl)) {
+                newStoredSounds.delete(soundUrl);
+                localStorage.setItem('myinstants-sounds', JSON.stringify(Array.from(newStoredSounds)));
+            }
+            else console.log("Sound not found in storage.");
+
+            const soundName = soundUrl.split('/').pop();
+            console.log(`✅Deleted ${soundName} from session and storage.`);
+            await updateStats();
+        }
+
+        async function deleteCurrentSound() {
             const soundFrame = document.getElementById("mySound");
             if (soundFrame.src) {
-                soundLinksSet.delete(soundFrame.src);
-                newStoredSounds = await getStoredSounds()
-                newStoredSounds.delete(soundFrame.src);
-                localStorage.setItem('myinstants-sounds', JSON.stringify(Array.from(newStoredSounds)));
-                soundFrame.src = ""; // Clear the audio source
-                console.log("✅Deleted current sound from session.");
-                await updateStats();
+                const currentSoundUrl = soundFrame.src;
+                await deleteSound(currentSoundUrl); // Delete the current sound
                 await changeRandomSound(); // Change to a new random sound
             } else {
                 console.warn("No sound is currently playing to delete.");
             }
         }
- // scraping
-        async function scrapeAndAddSoundsFromURL(url="https://www.myinstants.com/nl/index/be/", maxPages=5) 
-        {
+
+        // scraping
+        async function scrapeAndAddSoundsFromURL(url = "https://www.myinstants.com/nl/index/be/", maxPages = 6) {
             try {
                 const originalSize = soundLinksSet.size;
                 for (let page = 1; page <= maxPages; page++) {
                     const pageUrl = url + "?page=" + page;
                     console.log(`Scraping sounds from: ${pageUrl}`);
-                
-                    const response = await fetch("https://corsproxy.io/?" + encodeURIComponent(url));
+
+                    const response = await fetch("https://corsproxy.io/?" + encodeURIComponent(pageUrl));
                     const html = await response.text();
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(html, "text/html");
@@ -323,9 +350,19 @@
                     console.log(links);
                     if (links.length === 0) {
                         console.warn("🟡No sound links found on the page.");
-                        return;
+                        break;
                     }
-                    links.forEach(link => soundLinksSet.add(link));
+                    for (const link of links) {
+                        const mp3Link = await getMp3link(link);
+                        if (mp3Link) {
+                            soundLinksSet.add(mp3Link);
+                            await sleep(250);
+                        } else {
+                            console.warn("🟡No mp3 link found for:", link);
+                        }
+                    }
+                    await updateStats();
+                    await sleep(250); // wait before next page
                 }
                 const added = soundLinksSet.size - originalSize;
                 if (added === 0) {
@@ -334,56 +371,65 @@
                 }
                 else {
                     console.log(`✅Added ${added} new sounds from ${url} to session set.`);
-                await updateStats();
-            }
+                    await updateStats();
+                }
             } catch (error) {
-                console.error("Error scraping sounds:", error);}
+                console.error("Error scraping sounds:", error);
+            }
+        }
+
+        async function getMp3link(url) {
+            try {
+                const response = await fetch("https://corsproxy.io/?" + encodeURIComponent(url));
+                const html = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, "text/html");
+                const button = doc.querySelector("#instant-page-button-element");
+                if (button) {
+                    const mp3Link = "https://www.myinstants.com" + button.getAttribute("data-url");
+                    console.log("MP3 Link:", mp3Link);
+                    return mp3Link;
+                } else {
+                    console.warn("No button found on page:", url);
+                    return;
+                }
+            } catch (error) {
+                console.error("Error fetching/parsing sound page:", error);
+                return;
+            }
         }
 
         async function getRandomSound() {
-            try 
-            {   
+            try {
                 if (soundLinksSet.size === 0) {
                     console.warn("No sounds available. Loading from storage...");
                     if (loadFromStorage() == false) {
                         console.warn("🟡No sounds found in storage either. Using default sounds...");
                         soundLinksSet = new Set(soundLinks);
-                    }  
+                    }
                 }
                 let soundLinksArray = Array.from(soundLinksSet);
-                let button = null;
                 let attemptCount = 0;
                 const maxAttempts = 20;
-                while (button == null && attemptCount < maxAttempts) {
+                while (attemptCount < maxAttempts) {
                     const randomIndex = Math.floor(Math.random() * soundLinksArray.length);
-                    const url = soundLinksArray[randomIndex];
+                    const mp3link = soundLinksArray[randomIndex];
                     attemptCount++;
                     try {
-                        const response = await fetch("https://corsproxy.io/?" + encodeURIComponent(url));
-                        const html = await response.text();
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(html, "text/html");
-                        button = doc.querySelector("#instant-page-button-element");
-                        
-                        if (!button) {
-                            console.warn(`No button found on page (${attemptCount}/${maxAttempts}):`, url);
-                            soundLinksArray.splice(randomIndex, 1); // Remove the link if no button found
-                            soundLinksSet.delete(url)
-                            await updateStats();
-                            if (soundLinksArray.length === 0) {
-                                console.warn("No valid sound links left to try.");
-                                return null;
-                            }
-                        
+                        response = fetch("https://corsproxy.io/?" + encodeURIComponent(mp3link), { method: 'HEAD' }).then(res => res.ok);
+                        if (!response) {
+                            console.warn(`Sound link seems invalid (not reachable): ${mp3link}. Trying another one...`);
+                            deleteSound(mp3link);
+                            soundLinksArray = Array.from(soundLinksSet);
+                            continue; // try again
                         }
-                        else {
-                            const mp3Link = "https://www.myinstants.com" + button.getAttribute("data-url");
-                            return mp3Link;
-                        }
+                        else return mp3link;
+
                     } catch (err) {
                         console.warn("Fetch/parsing failed:", err);
+                        continue; // try again
                     }
-                }   
+                }
                 console.warn("No valid sound found after max attempts.");
                 return null;
             } catch (error) {
@@ -402,11 +448,11 @@
                 console.warn("No valid mp3 link found.");
             }
         }
-        
+
         async function playSound() {
-            try{
+            try {
                 const soundFrame = document.getElementById('mySound');
-                if (!soundFrame.src) {
+                if (!soundFrame.src || soundFrame.src === "" || !(soundFrame.src.endsWith("mp3"))) {
                     await changeRandomSound();
                 }
                 // if the sound is still playing, stop it
@@ -414,13 +460,12 @@
                     soundFrame.pause();
                     soundFrame.currentTime = 0; // reset to start
                 }
-                console.log("Now playing: ", soundFrame.src);   
-                await soundFrame.play().catch(error => {
-                    console.error("Error playing sound:", error);
-                });
-                } catch (error) {
+                console.log("Now playing: ", soundFrame.src);
+                await soundFrame.play();
+            }
+            catch (error) {
                 console.error("Error in playSound function:", error);
-                }
+            }
         }
         async function downloadSound() {
             const soundFrame = document.getElementById('mySound');
@@ -433,7 +478,7 @@
             const filename = url.split('/').pop();
             const response = await fetch("https://corsproxy.io/?" + encodeURIComponent(url));
             const blob = await response.blob();
-            
+
             const a = document.createElement("a");
             a.href = URL.createObjectURL(blob);
             a.download = filename;
@@ -442,12 +487,13 @@
             console.log("✅Sound downloaded:", filename);
         }
 
-       document.addEventListener("DOMContentLoaded", async () => {
+        document.addEventListener("DOMContentLoaded", async () => {
             console.log("Document is ready!");
             await updateStats();
             await loadFromStorage();
             await changeRandomSound();
 
-       });
+        });
     </script>
+
 </html>
