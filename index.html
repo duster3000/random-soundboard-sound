@@ -23,9 +23,9 @@
         }
 
         main {
-            padding: 20px;
+            padding: 17.5px;
             text-align: center;
-        }
+            margin-bottom: 60px; /* space for footer */}
 
         footer {
             background-color: #333;
@@ -40,8 +40,10 @@
         .content {
             background-color: white;
             padding: 10px;
-            margin: 10px auto;
+            margin: 5px 0 5px 0 ;
+            display: block;
             border-radius: 5px;
+            align-items: center;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             h1 {
                 color: #333;
@@ -49,13 +51,7 @@
             p {
                 color: #666;
             }
-            a {
-                color: #007BFF;
-                text-decoration: none;
-            }
-            a:hover {
-                text-decoration: underline;
-            }
+            
             button {
                 background-color: #007BFF;
                 color: white;
@@ -76,13 +72,21 @@
         #main-instant {
             display: flex;
             flex-wrap: wrap;
-            justify-content: center;
+            justify-content: space-evenly;
             align-items: center;
+            gap: 1rem;
 
             audio {
                 display: none;
             }
 
+        }
+        a {
+                color: #007BFF;
+                text-decoration: none;
+            }
+        a:hover {
+            text-decoration: underline;
         }
 
         #main-instant-button {
@@ -113,20 +117,24 @@
 
         .github-link {
             text-align: center;
-            margin-top: 11rem;
             font-size: 1rem;
         }
 
-        .github-link a {
-            color: #0366d6;
-            /* optioneel: GitHub-blauw */
-            text-decoration: none;
+        .button-block {
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* zorgt dat alles gecentreerd is */
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        #save-btns {
+            display: flex;
+            gap: 10px;
+            justify-content: space-evenly;
         }
 
-        .github-link a:hover {
-            text-decoration: underline;
-        }
-
+     
         /* Optioneel: extra media query voor nog smaller scherm */
         @media (max-width: 500px) {
             .sound-stats-row {
@@ -141,24 +149,27 @@
         <h1>Random Sound</h1>
     </header>
     <main>
+
         <div class="content">
             <h1>Click the button!</h1>
             <p>It will play a random sound from <a href='https://www.myinstants.com/' target="_blank">MyInstants</a>.
             </p>
             <div id="main-instant">
-                <button title="Download current sound" onclick="downloadSound()" id="download-button">Download
+                <button style="flex:1;" title="Download current sound" onclick="downloadSound()" id="download-button">Download
                     Sound</button>
-                <button id="main-instant-button" title="Play Random Sound" onclick="playSound()">Play Random
+                <button style="flex:1;" id="main-instant-button" title="Play Random Sound" onclick="playSound()">Play Random
                     Sound</button>
                 <audio id="mySound" src=""></audio>
-                <button title="Delete current sound from session" onclick="deleteCurrentSound()">Delete Current
+                <button style="flex:1;" title="Delete current sound from session" onclick="deleteCurrentSound()">Delete Current
                     Sound</button>
             </div>
-
-            <button title="Change random sound" onclick="changeRandomSound()">Change Random Sound</button>
-            <button title="Save sounds to local storage" onclick="saveSoundsToStorage(soundLinksSet)">Save
-                Sounds</button>
-            <button title="Load sounds from localStorage" onclick="loadFromStorage()">Load Sounds from Storage</button>
+            <div class="button-block">
+                <button style="flex:1;" title="Change random sound" id="change-sound-button" onclick="changeRandomSound()">Change Random Sound</button>
+                <div id="save-btns">
+                    <button style="flex:1;" title="Save sounds to browser storage" onclick="saveSoundsToStorage(soundLinksSet)">Save Sounds</button>
+                    <button style="flex:1;" title="Load sounds from browser storage" onclick="loadFromStorage()">Load Sounds from Storage</button>
+                </div>
+            </div>
         </div>
         <div id="scrape-div" class="content">
             <h2>Scrape Sounds from MyInstants</h2>
@@ -174,7 +185,7 @@
                 <option value="US">United States</option>
             </select>
         </div>
-        <div id="stat_info" class="content">
+        <div id="stat-info" class="content">
             <h2>Sound Statistics</h2>
             <div class="sound-stats-row">
                 <div id="session-sounds">
