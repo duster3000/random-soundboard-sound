@@ -414,7 +414,7 @@
             try {
                 if (soundLinksSet.size === 0) {
                     console.warn("No sounds available. Loading from storage...");
-                    if (loadFromStorage() == false) {
+                    if (await loadFromStorage() === false) {
                         console.warn("🟡No sounds found in storage either. Using default sounds...");
                         soundLinksSet = new Set(soundLinks);
                     }
@@ -427,10 +427,10 @@
                     const mp3link = soundLinksArray[randomIndex];
                     attemptCount++;
                     try {
-                        response = fetch("/.netlify/functions/fetch-url?url=" + encodeURIComponent(mp3link), { method: 'HEAD' }).then(res => res.ok);
-                        if (!response) {
+                        const response = await fetch("/.netlify/functions/fetch-url?url=" + encodeURIComponent(mp3link), { method: 'HEAD' });
+                        if (!response.ok) {
                             console.warn(`Sound link seems invalid (not reachable): ${mp3link}. Trying another one...`);
-                            deleteSound(mp3link);
+                            await deleteSound(mp3link);
                             soundLinksArray = Array.from(soundLinksSet);
                             continue; // try again
                         }
